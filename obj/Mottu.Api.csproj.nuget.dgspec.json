@@ -48,6 +48,14 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "MSTest.TestAdapter": {
+              "target": "Package",
+              "version": "[4.0.0-preview.25465.3, )"
+            },
+            "MSTest.TestFramework": {
+              "target": "Package",
+              "version": "[4.0.0-preview.25465.3, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[8.0.8, )"
