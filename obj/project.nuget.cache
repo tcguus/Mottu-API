@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yD0JSEe0Vc4=",
+  "dgSpecHash": "EUWkm3EtWaE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Gustavo\\projetos\\Mottu.Api\\Mottu.Api.csproj",
+  "projectFilePath": "C:\\Users\\Gustavo\\RiderProjects\\Mottu-API\\Mottu.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Gustavo\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Gustavo\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

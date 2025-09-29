@@ -4768,11 +4768,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Gustavo\\projetos\\Mottu.Api\\Mottu.Api.csproj",
+      "projectUniqueName": "C:\\Users\\Gustavo\\RiderProjects\\Mottu-API\\Mottu.Api.csproj",
       "projectName": "Mottu.Api",
-      "projectPath": "C:\\Users\\Gustavo\\projetos\\Mottu.Api\\Mottu.Api.csproj",
+      "projectPath": "C:\\Users\\Gustavo\\RiderProjects\\Mottu-API\\Mottu.Api.csproj",
       "packagesPath": "C:\\Users\\Gustavo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Gustavo\\projetos\\Mottu.Api\\obj\\",
+      "outputPath": "C:\\Users\\Gustavo\\RiderProjects\\Mottu-API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Gustavo\\AppData\\Roaming\\NuGet\\NuGet.Config"
