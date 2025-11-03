@@ -6,11 +6,13 @@ using Mottu.Api.Domain;
 using Mottu.Api.Examples;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using Asp.Versioning;
 
 namespace Mottu.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")] 
+[Route("api/v{version:apiVersion}/[controller]")]
 public class ManutencoesController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -30,27 +32,29 @@ public class ManutencoesController : ControllerBase
     [SwaggerRequestExample(typeof(ManutencaoCreateRequest), typeof(ManutencaoCreateRequestExample))]
     [SwaggerResponseExample(StatusCodes.Status201Created, typeof(ManutencaoResponseExample))]
     [ProducesResponseType(typeof(ManutencaoResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ManutencaoCreateRequest req)
     {
-        var placa = (req.Placa ?? "").ToUpper();
-        var moto = await _db.Motos.AsNoTracking().FirstOrDefaultAsync(x => x.Placa == placa);
-        if (moto == null) return NotFound(new { message = "Moto não encontrada" });
+      var placa = (req.Placa ?? "").ToUpper();
+      var moto = await _db.Motos.AsNoTracking().FirstOrDefaultAsync(x => x.Placa == placa);
+        
+      if (moto == null) 
+        return BadRequest(new { message = "Moto não encontrada com a placa informada." });
 
-        var m = new Domain.Manutencao
-        {
-            Id = GerarId4DigitosUnico(),
-            Placa = placa,
-            Problemas = req.Problemas,
-            Data = DateTime.UtcNow,
-            Status = StatusManutencao.Aberta
-        };
-        _db.Manutencoes.Add(m);
-        await _db.SaveChangesAsync();
+      var m = new Domain.Manutencao
+      {
+        Id = GerarId4DigitosUnico(),
+        Placa = placa,
+        Problemas = req.Problemas,
+        Data = DateTime.UtcNow,
+        Status = StatusManutencao.Aberta
+      };
+      _db.Manutencoes.Add(m);
+      await _db.SaveChangesAsync();
 
-        var resp = new ManutencaoResponse(m.Id, m.Placa, m.Problemas, m.Status.ToString(), m.Data);
-        return Created($"/api/v1/manutencoes/{m.Id}", resp);
+      var resp = new ManutencaoResponse(m.Id, m.Placa, m.Problemas, m.Status.ToString(), m.Data);
+      return Created($"/api/v1/manutencoes/{m.Id}", resp);
     }
 
     [SwaggerOperation(Summary = "Atualizar manutenção", Description = "Atualiza descrição e/ou status (Aberta/Concluida); não muda a placa.")]

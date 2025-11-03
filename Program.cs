@@ -1,12 +1,16 @@
 using System.Reflection;
 using System.Text;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Mottu.Api.Data;
+using Mottu.Api.ML;
 using Mottu.Api.Services;
 using Swashbuckle.AspNetCore.Filters;
+using Microsoft.ML;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,9 +41,37 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
+// Registra ML apenas se não estiver em ambiente de teste
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    var predictionEngine = MLService.CreatePredictionEngine();
+    if (predictionEngine != null)
+    {
+        builder.Services.AddSingleton(predictionEngine);
+    }
+}
 
+builder.Services.AddHealthChecks()
+  .AddDbContextCheck<AppDbContext>( 
+    name: "database",
+    failureStatus: HealthStatus.Unhealthy,
+    tags: new[] { "db", "sqlite" });
+
+builder.Services.AddControllers();
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -72,6 +104,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
 var app = builder.Build();
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -103,6 +136,10 @@ app.UseSwaggerUI(o =>
     o.DocumentTitle = "Mottu API Docs";
     o.RoutePrefix = "swagger"; 
 });
+
+app.MapHealthChecks("/health");
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 app.MapControllers();
 app.Run();
+
+public partial class Program { }

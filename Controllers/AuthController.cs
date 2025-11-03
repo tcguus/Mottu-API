@@ -9,12 +9,13 @@ using Mottu.Api.Examples;
 using Mottu.Api.Services;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-
+using Asp.Versioning;
 
 namespace Mottu.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")] 
+[Route("api/v{version:apiVersion}/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly AppDbContext _db;

@@ -7,11 +7,15 @@ using Mottu.Api.Examples;
 using Mottu.Api.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mottu.Api.Controllers;
 
+[Authorize]
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")] 
+[Route("api/v{version:apiVersion}/[controller]")]
 public class MotosController : ControllerBase
 {
     private readonly AppDbContext _db;
