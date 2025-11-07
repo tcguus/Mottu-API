@@ -42,6 +42,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 // Registra ML apenas se não estiver em ambiente de teste
+// (Sua excelente adição para os testes!)
 if (!builder.Environment.IsEnvironment("Testing"))
 {
     var predictionEngine = MLService.CreatePredictionEngine();
@@ -88,18 +89,35 @@ builder.Services.AddSwaggerGen(c =>
     if (File.Exists(xmlPath))
         c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
     
-    var bearer = new OpenApiSecurityScheme
+    c.ExampleFilters(); // Mantém esta linha
+    
+    // --- INÍCIO DA CORREÇÃO ---
+    // Substituída a configuração de segurança por esta mais robusta
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Ex.: Bearer {seu_token}"
-    };
-    c.AddSecurityDefinition("Bearer", bearer);
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement { { bearer, Array.Empty<string>() } });
-    c.ExampleFilters();
+        Description = "Insira 'Bearer' [espaço] e então o seu token. \r\n\r\nExemplo: Bearer eyJhbGciOi..."
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+    // --- FIM DA CORREÇÃO ---
 });
 builder.Services.AddSwaggerExamplesFromAssemblyOf<Program>();
 
@@ -126,7 +144,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.UseCors("AllowAll");
+app.UseCors("All");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSwagger();
